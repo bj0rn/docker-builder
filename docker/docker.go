@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"text/template"
 
 	"github.com/bj0rn/docker-builder/parameters"
@@ -18,14 +19,15 @@ type DockerFileVariables struct {
 func generateDockerFile(fromImage, command, fileName string) {
 	dockerFileVariables := DockerFileVariables{
 		FromImage:    fromImage,
-		ProgramFiles: fileName,
+		ProgramFiles: "app",
 		Command:      command,
 	}
 	template := template.New("Dockerfile")
 
-	template, _ = template.Parse(`FROM {{.FromImage}}
+	template, _ = template.Parse(
+		`FROM {{.FromImage}}
     COPY {{.ProgramFiles}} /app
-    ENTRYPOINT ['{{.Command}}']`)
+    CMD {{.Command}}`)
 
 	output, err := os.Create("Dockerfile")
 	if err != nil {
@@ -43,36 +45,47 @@ func BuildDockerImage(parameters *parameters.Parameters, fileName string) {
 	generateDockerFile(parameters.BaseImage, parameters.Command, fileName)
 	src := fmt.Sprintf("%s/%s", parameters.OutputRegistry, parameters.OutputImage)
 
-	res, err := exec.Command("docker", "build", "-t", src, ".").Output()
+	cmd := exec.Command("docker", "build", "-t", src, ".")
+
+	cmd.Stdout = os.Stdout
+	err := cmd.Start()
 	if err != nil {
-		fmt.Println("Docker build failed with msg", err)
-		return
+		panic(err)
 	}
-	fmt.Println("Docker build suceeded with msg", res)
+	cmd.Wait()
+
+	fmt.Println("Docker build suceeded")
 }
 
 func TagDockerImages(parameters *parameters.Parameters) {
-	for _, tag := range parameters.Tags {
+	tags := strings.Split(parameters.Tags, " ")
+	for _, tag := range tags {
 		src := fmt.Sprintf("%s/%s", parameters.OutputRegistry, parameters.OutputImage)
-		dest := fmt.Sprintf("%s:%s", src, tag)
+		dest := fmt.Sprintf("%v:%v", src, tag)
 
-		res, err := exec.Command("docker", "tag", src, dest).Output()
+		cmd := exec.Command("docker", "tag", src, dest)
+		fmt.Println("Tagged docker image: ", dest)
+		cmd.Stdout = os.Stdout
+		err := cmd.Start()
 		if err != nil {
-			fmt.Println("Failed to tag image", dest)
-			return
+			panic(err)
 		}
-		fmt.Println("Failed to tag image", res)
+		cmd.Wait()
 	}
 }
 
 func PushDockerImages(parameters *parameters.Parameters) {
-	for _, tag := range parameters.Tags {
-		image := fmt.Sprintf("%s/%s:%s", parameters.OutputRegistry, parameters.OutputImage, tag)
-		res, err := exec.Command("docker", "push", image).Output()
+	tags := strings.Split(parameters.Tags, " ")
+	for _, tag := range tags {
+		image := fmt.Sprintf("%v/%v:%v", parameters.OutputRegistry, parameters.OutputImage, tag)
+		cmd := exec.Command("docker", "push", image)
+
+		cmd.Stdout = os.Stdout
+		err := cmd.Start()
 		if err != nil {
-			fmt.Println("Failed to push image", image)
-			return
+			panic(err)
 		}
-		fmt.Println("Pushed image with msg:", res)
+		cmd.Wait()
+
 	}
 }
