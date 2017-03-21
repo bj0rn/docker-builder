@@ -1,0 +1,61 @@
+{
+    "kind": "BuildConfig",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "app",
+        "creationTimestamp": null,
+        "labels": {
+            "name": "app"
+        }
+    },
+    "spec": {
+        "triggers": [],
+        "runPolicy": "Serial",
+        "source": {
+            "type": "None"
+        },
+        "strategy": {
+            "type": "Custom",
+            "customStrategy": {
+                "from": {
+                    "kind": "DockerImage",
+                    "name": "registry.theopsh.net:5000/tools/builder"
+                },
+                "env": [
+		                {
+       			            "name": "URL",
+ 		                     "value": "http://nexus-nexus.app.theopsh.net/nexus/"
+   	                },
+                    {
+                      "name": "ARTIFACT_ID",
+                      "value": "spring-demo-openshift"
+                    },
+                    {
+                      "name": "GROUP_ID",
+                      "value": "github.com.bj0rn"
+                    },
+                    {
+                      "name": "VERSION",
+                      "value": "1.0"
+                    },
+                    {
+                      "name": "BASE_IMAGE",
+                      "value": "centos"
+                    }
+                ],
+                "exposeDockerSocket": true
+            }
+        },
+        "output": {
+            "to": {
+                "kind": "DockerImage",
+                "name": "registry.theopsh.net:5000/test"
+            }
+        },
+        "resources": {},
+        "postCommit": {}
+    },
+    "status": {
+        "lastVersion": 0
+    }
+}

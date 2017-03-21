@@ -45,7 +45,7 @@ func BuildDockerImage(parameters *parameters.Parameters, fileName string) {
 	generateDockerFile(parameters.BaseImage, parameters.Command, fileName)
 	src := fmt.Sprintf("%s/%s", parameters.OutputRegistry, parameters.OutputImage)
 
-	fmt.Println("Building the docker image...")
+	fmt.Println("Building the docker image: ", src)
 	cmd := exec.Command("docker", "build", "-t", src, ".")
 
 	cmd.Stdout = os.Stdout
