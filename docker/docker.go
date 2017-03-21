@@ -45,9 +45,11 @@ func BuildDockerImage(parameters *parameters.Parameters, fileName string) {
 	generateDockerFile(parameters.BaseImage, parameters.Command, fileName)
 	src := fmt.Sprintf("%s/%s", parameters.OutputRegistry, parameters.OutputImage)
 
+	fmt.Println("Building the docker image...")
 	cmd := exec.Command("docker", "build", "-t", src, ".")
 
 	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	err := cmd.Start()
 	if err != nil {
 		panic(err)
@@ -66,6 +68,7 @@ func TagDockerImages(parameters *parameters.Parameters) {
 		cmd := exec.Command("docker", "tag", src, dest)
 		fmt.Println("Tagged docker image: ", dest)
 		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 		err := cmd.Start()
 		if err != nil {
 			panic(err)
@@ -81,6 +84,8 @@ func PushDockerImages(parameters *parameters.Parameters) {
 		cmd := exec.Command("docker", "push", image)
 
 		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
 		err := cmd.Start()
 		if err != nil {
 			panic(err)

@@ -13,15 +13,19 @@ func main() {
 	//Gather input variables in struct
 	params := parameters.Get()
 
+
+
+
+  filename := fmt.Sprintf("%s.%s", "app", params.DistributionType)
 	//Find a cleaner solution
-	fileName := program.DownloadFromUrl(params)
-	if strings.Contains(fileName, ".zip") {
-		program.Unzip(fileName)
-	} else if strings.Contains(fileName, ".jar") {
-		params.Command = fmt.Sprintf("java -jar %s", fileName)
+	program.DownloadFromUrl(params, filename)
+	if strings.Contains(filename, ".zip") {
+		program.Unzip(filename)
+	} else if strings.Contains(filename, ".jar") {
+		params.Command = fmt.Sprintf("java -jar %s", filename)
 	}
 
-	docker.BuildDockerImage(params, fileName)
+	docker.BuildDockerImage(params, filename)
 
 	docker.TagDockerImages(params)
 
