@@ -1,0 +1,289 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "app-template",
+        "creationTimestamp": null,
+        "annotations": {
+            "openshift.io/display-name": "App template",
+            "description": "App template deploy app from nexus",
+            "tags": "instant-app",
+            "template.openshift.io/long-description": "This template deploys an application from nexus "
+        }
+    },
+    "objects": [{
+            "kind": "Route",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APP_NAME}",
+                "creationTimestamp": null
+            },
+            "spec": {
+                "to": {
+                    "kind": "Service",
+                    "name": "${APP_NAME}"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "ImageStream",
+            "metadata": {
+                "name": "{APP_NAME}",
+                "annotations": {
+                    "openshift.io/image.insecureRepository": "true"
+                }
+
+            },
+            "spec": {
+                "dockerImageRepository": "${OUTPUT_REGISTRY}/${OUTPUT_IMAGE}",
+                "importPolicy": {
+                    "scheduled": true
+                }
+            }
+        },
+        {
+            "kind": "BuildConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "app",
+                "creationTimestamp": null,
+                "labels": {
+                    "name": "app"
+                }
+            },
+            "spec": {
+                "triggers": [],
+                "runPolicy": "Serial",
+                "source": {
+                    "type": "None"
+                },
+                "strategy": {
+                    "type": "Custom",
+                    "customStrategy": {
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.theopsh.net:5000/tools/builder"
+                        },
+                        "env": [{
+                                "name": "URL",
+                                "value": "${NEXUS_URL}"
+                            },
+                            {
+                                "name": "ARTIFACT_ID",
+                                "value": "${ARTIFACT_ID}"
+                            },
+                            {
+                                "name": "GROUP_ID",
+                                "value": "${GROUP_ID}"
+                            },
+                            {
+                                "name": "VERSION",
+                                "value": "${VERSION}"
+                            },
+                            {
+                                "name": "BASE_IMAGE",
+                                "value": "${BASE_IMAGE}"
+                            },
+                            {
+                                "name": "DISTRIBUTION_TYPE",
+                                "value": "${DISTRIBUTION_TYPE}"
+                            },
+                            {
+                                "name": "DISTRUBUTION_MANAGER",
+                                "value": "${DISTRUBUTION_MANAGER}"
+                            },
+                            {
+                                "name": "COMMAND",
+                                "value": "${COMMAND}"
+                            },
+                            {
+                                "name": "TAGS",
+                                "value": "${TAGS}"
+                            }
+                        ],
+                        "exposeDockerSocket": true
+                    }
+                },
+                "output": {
+                    "to": {
+                        "kind": "DockerImage",
+                        "name": "${OUTPUT_REGISTRY}/${OUTPUT_IMAGE}"
+                    }
+                },
+                "resources": {},
+                "postCommit": {}
+            },
+            "status": {
+                "lastVersion": 0
+            }
+        },
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APP_NAME}",
+                "creationTimestamp": null
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "triggers": [{
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "${APP_NAME}"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "${APP_IMAGE_STREAM_TAG}"
+                            },
+                            "lastTriggeredImage": ""
+                        }
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ],
+                "replicas": 1,
+                "selector": {
+                    "name": "${APP_NAME}"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "name": "${APP_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "containers": [{
+                            "name": "${APP_NAME}",
+                            "image": " ",
+                            "env": [
+
+                            ],
+                            "resources": {
+                                "limits": {
+                                    "memory": "${MEMORY_LIMIT}"
+                                }
+                            },
+                            "terminationMessagePath": "/dev/termination-log",
+                            "imagePullPolicy": "IfNotPresent",
+                            "capabilities": {},
+                            "securityContext": {
+                                "capabilities": {},
+                                "privileged": false
+                            }
+                        }],
+                        "restartPolicy": "Always",
+                        "dnsPolicy": "ClusterFirst"
+                    }
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APP_NAME}",
+                "annotations": {},
+                "creationTimestamp": null
+            },
+            "spec": {
+                "ports": [{
+                    "name": "web",
+                    "protocol": "TCP",
+                    "port": 8080,
+                    "targetPort": 8080,
+                    "nodePort": 0
+                }],
+                "selector": {
+                    "name": "${APP_NAME}"
+                },
+                "type": "ClusterIP",
+                "sessionAffinity": "None"
+            }
+        }
+    ],
+    "parameters": [{
+            "name": "APP_NAME",
+            "displayName": "APP Name",
+            "description": "The name of the application",
+            "required": true
+        },
+        {
+            "name": "NEXUS_URL",
+            "displayName": "Nexus url",
+            "description": "The Url of the nexus service",
+            "value": "nexus-nexus.app.theopsh.net/nexus"
+        },
+        {
+            "name": "GROUP_ID",
+            "displayName": "Group id",
+            "required": true
+        },
+        {
+            "name": "ARTIFACT_ID",
+            "displayName": "artifact  id",
+            "required": true
+        },
+        {
+            "name": "VERSION",
+            "displayName": "version",
+            "value": ""
+
+        },
+        {
+            "name": "COMMAND",
+            "displayName": "command",
+            "description": "Command executed in the created docker image",
+            "value": ""
+        },
+        {
+            "name": "OUTPUT_REGISTRY",
+            "displayName": "Output registry",
+            "value": "registry.theopsh.net:5000"
+        },
+        {
+            "name": "OUTPUT_IMAGE",
+            "displayName": "Output image name",
+            "required": true
+        },
+        {
+            "name": "DISTRIBUTION_TYPE",
+            "displayName": "Distribution type",
+            "description": "packaging type: zip | jar",
+            "value": "zip"
+        },
+        {
+            "name": "DISTRIBUTION_MANAGER",
+            "displayName": "Distribution manager",
+            "description": "Leave <blank> if using something other than nexus",
+            "value": "nexus"
+        },
+        {
+            "name": "MEMORY_LIMIT",
+            "displayName": "Memory Limit",
+            "description": "Maximum amount of memory the container can use.",
+            "value": "512Mi"
+        },
+        {
+            "name": "APP_IMAGE_STREAM_TAG",
+            "displayName": "App ImageStreamTag",
+            "description": "Name of the ImageStreamTag to be used for the app image.",
+            "required": true
+        },
+        {
+            "name": "TAGS",
+            "displayName": "Image tags",
+            "Discriptions": "Tags to be pushed",
+            "value": "latest"
+        }
+    ],
+    "labels": {
+        "template": "app-template"
+    }
+}
