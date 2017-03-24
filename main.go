@@ -18,12 +18,13 @@ func main() {
 	program.DownloadFromUrl(params, filename)
 	if strings.Contains(filename, ".zip") {
 		program.Unzip(filename)
-		docker.BuildDockerImage(params, "app")
+
 	} else if strings.Contains(filename, ".jar") {
 		params.Command = fmt.Sprintf("java -jar %s", filename)
-		docker.BuildDockerImage(params, filename)
+
 	}
 
+	docker.BuildDockerImage(params)
 	docker.TagDockerImages(params)
 
 	docker.PushDockerImages(params)

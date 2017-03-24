@@ -41,8 +41,8 @@ func generateDockerFile(fromImage, command, fileName string) {
 
 }
 
-func BuildDockerImage(parameters *parameters.Parameters, folderName string) {
-	filePath := fmt.Sprintf("%s/%s-%s", folderName, parameters.ArtifactId, parameters.Version)
+func BuildDockerImage(parameters *parameters.Parameters) {
+	filePath := fmt.Sprintf("%s-%s", parameters.ArtifactId, parameters.Version)
 
 	generateDockerFile(parameters.BaseImage, parameters.Command, filePath)
 	src := fmt.Sprintf("%s/%s", parameters.OutputRegistry, parameters.OutputImage)
