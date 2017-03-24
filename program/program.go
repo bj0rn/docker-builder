@@ -3,6 +3,7 @@ package program
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -12,10 +13,9 @@ import (
 )
 
 func Unzip(filename string) {
-	_, err := exec.Command("unzip", "-d", "app", filename).Output()
+	_, err := exec.Command("unzip", filename).Output()
 	if err != nil {
-		fmt.Println("Failed to unzip file", filename)
-		return
+		log.Fatalf("Failed to unzip file %s", filename)
 	}
 	fmt.Println("Unzipped file", filename)
 }

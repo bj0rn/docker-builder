@@ -19,7 +19,7 @@ type DockerFileVariables struct {
 func generateDockerFile(fromImage, command, fileName string) {
 	dockerFileVariables := DockerFileVariables{
 		FromImage:    fromImage,
-		ProgramFiles: "app",
+		ProgramFiles: fileName,
 		Command:      command,
 	}
 	template := template.New("Dockerfile")
@@ -41,8 +41,10 @@ func generateDockerFile(fromImage, command, fileName string) {
 
 }
 
-func BuildDockerImage(parameters *parameters.Parameters, fileName string) {
-	generateDockerFile(parameters.BaseImage, parameters.Command, fileName)
+func BuildDockerImage(parameters *parameters.Parameters, folderName string) {
+	filePath := fmt.Sprintf("%s/%s-%s", folderName, parameters.ArtifactId, parameters.Version)
+
+	generateDockerFile(parameters.BaseImage, parameters.Command, filePath)
 	src := fmt.Sprintf("%s/%s", parameters.OutputRegistry, parameters.OutputImage)
 
 	fmt.Println("Building the docker image: ", src)

@@ -37,7 +37,7 @@ func Get() *Parameters {
 	url := getEnvOrDefault("URL", "")
 	command := getEnvOrDefault("COMMAND", "app/start.sh")
 	distributionType := getEnvOrDefault("DISTRIBUTION_TYPE", "zip")
-	distributionManager := getEnvOrDefault("DISTRUBUTION_MANAGER", "nexus")
+	distributionManager := getEnvOrDefault("DISTRIBUTION_MANAGER", "nexus")
 
 	return &Parameters{
 		Url:                 url,
