@@ -277,6 +277,11 @@
             "required": true
         },
         {
+          "name": "BASE_IMAGE",
+          "displayName": "Base image",
+          "value": "openjdk:8"
+        },
+        {
             "name": "TAGS",
             "displayName": "Image tags",
             "Discriptions": "Tags to be pushed",
