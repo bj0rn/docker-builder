@@ -63,7 +63,7 @@
                     "customStrategy": {
                         "from": {
                             "kind": "DockerImage",
-                            "name": "registry.theopsh.net:5000/tools/builder"
+                            "name": "registry.theopsh.net:5000/builder"
                         },
                         "env": [{
                                 "name": "URL",
