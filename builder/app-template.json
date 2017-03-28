@@ -37,9 +37,19 @@
             },
             "spec": {
                 "dockerImageRepository": "${OUTPUT_REGISTRY}/${OUTPUT_IMAGE}",
-                "importPolicy": {
-                    "scheduled": true
-                }
+                "tags": [{
+                    "name": "latest",
+                    "annotations": null,
+                    "from": {
+                        "kind": "DockerImage",
+                        "name": "${OUTPUT_REGISTRY}/${OUTPUT_IMAGE}:${APP_IMAGE_STREAM_TAG}"
+                    },
+                    "importPolicy": {
+                        "insecure": true,
+                        "scheduled": true
+                    }
+                }]
+
             }
         },
         {
@@ -53,11 +63,9 @@
                 }
             },
             "spec": {
-                "triggers": [
-                  {
-                      "type": "ConfigChange"
-                  }
-                ],
+                "triggers": [{
+                    "type": "ConfigChange"
+                }],
                 "runPolicy": "Serial",
                 "source": {
                     "type": "None"
@@ -142,7 +150,7 @@
                             ],
                             "from": {
                                 "kind": "ImageStreamTag",
-                                "name": "${APP_IMAGE_STREAM_TAG}"
+                                "name": "${APP_NAME}:${APP_IMAGE_STREAM_TAG}"
                             },
                             "lastTriggeredImage": ""
                         }
@@ -278,12 +286,13 @@
             "name": "APP_IMAGE_STREAM_TAG",
             "displayName": "App ImageStreamTag",
             "description": "Name of the ImageStreamTag to be used for the app image.",
+            "value": "latest", 
             "required": true
         },
         {
-          "name": "BASE_IMAGE",
-          "displayName": "Base image",
-          "value": "openjdk:8"
+            "name": "BASE_IMAGE",
+            "displayName": "Base image",
+            "value": "openjdk:8"
         },
         {
             "name": "TAGS",
