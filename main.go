@@ -17,7 +17,7 @@ func main() {
 	//Find a cleaner solution
 	program.DownloadFromUrl(params, filename)
 	if strings.Contains(filename, ".zip") {
-		params.Command = fmt.Sprintf("java -jar app/%s-%s.jar", params.ArtifactId, params.GroupId)
+		params.Command = fmt.Sprintf("java -jar app/%s-%s.jar", params.ArtifactId, params.Version)
 		program.Unzip(filename)
 
 	} else if strings.Contains(filename, ".jar") {
