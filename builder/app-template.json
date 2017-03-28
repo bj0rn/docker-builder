@@ -53,7 +53,11 @@
                 }
             },
             "spec": {
-                "triggers": [],
+                "triggers": [
+                  {
+                      "type": "ConfigChange"
+                  }
+                ],
                 "runPolicy": "Serial",
                 "source": {
                     "type": "None"
@@ -218,7 +222,7 @@
             "name": "NEXUS_URL",
             "displayName": "Nexus url",
             "description": "The Url of the nexus service",
-            "value": "nexus-nexus.app.theopsh.net/nexus"
+            "value": "http://nexus-nexus.app.theopsh.net/nexus"
         },
         {
             "name": "GROUP_ID",
